@@ -1,4 +1,4 @@
 open-usp-tukubai-by-awk
 =======================
 
-AWKによるopen-usp-tukubaiの実装。
+AWKによるOpen usp Tukubaiの実装。

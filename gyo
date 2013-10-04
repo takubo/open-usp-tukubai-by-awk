@@ -1,0 +1,51 @@
+#!/bin/sh
+
+which gawk > /dev/null &&
+{
+gawk -- '
+	BEGIN {
+		if (ARGV[1] == "-f") {
+			show_fname = 1
+			ARGV[1] = ""
+		}
+	}
+
+	ENDFILE {
+		if (show_fname)
+			print FILENAME, FNR
+		else
+			print FNR
+	}
+' "$@"
+exit $?
+}
+
+awk -- '
+	BEGIN {
+		if (ARGV[1] == "-f") {
+			show_fname = 1
+			ARGV[1] = ""
+		}
+		argind = 0
+	}
+
+	FNR == 1 {
+		filename[argind] = FILENAME
+		fnr[argind - 1] = row
+		argind++
+		row = 0
+	}
+
+	{
+		row = FNR
+	}
+
+	END {
+		fnr[argind - 1] = row
+		for (i = 0; i < argind; i++)
+			if (show_fname)
+				print filename[i], fnr[i]
+			else
+				print filename[i], fnr[i]
+	}
+' "$@"
