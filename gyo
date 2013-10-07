@@ -17,7 +17,7 @@ gawk -- '
 			print FNR
 	}
 ' "$@"
-exit $?
+exit
 }
 
 awk -- '
@@ -26,26 +26,27 @@ awk -- '
 			show_fname = 1
 			ARGV[1] = ""
 		}
-		argind = 0
-	}
-
-	FNR == 1 {
-		filename[argind] = FILENAME
-		fnr[argind - 1] = row
-		argind++
-		row = 0
 	}
 
 	{
-		row = FNR
+		fnr[FILENAME] = FNR
 	}
 
 	END {
-		fnr[argind - 1] = row
-		for (i = 0; i < argind; i++)
+		implicit_stdin = 1
+		for (i = 1; i < ARGC; i++)
+			if (ARGV[i] != "") {
+				implicit_stdin = 0
+				if (show_fname)
+					print ARGV[i], fnr[ARGV[i]]
+				else
+					print fnr[ARGV[i]]
+			}
+
+		if (implicit_stdin)
 			if (show_fname)
-				print filename[i], fnr[i]
+				print "-", fnr["-"]
 			else
-				print filename[i], fnr[i]
+				print fnr["-"]
 	}
 ' "$@"
